@@ -1,3 +1,8 @@
+import sqlite3
+import json
+
+from models import Location
+
 LOCATIONS = [
      {
           "id": 1,
@@ -13,23 +18,52 @@ LOCATIONS = [
 
 
 def get_all_locations():
-    return LOCATIONS
+    with sqlite3.connect("./kennel.db") as conn:
+
+        conn.row_factory = sqlite3.Row
+        db_cursor = conn.cursor()
+
+        db_cursor.execute("""
+        SELECT
+            a.id,
+            a.name,
+            a.address
+        FROM location a
+        """)
+
+        locations = []
+
+        dataset = db_cursor.fetchall()
+
+        for row in dataset:
+
+            location = Location(row['id'], row['name'], row['address'])
+
+            locations.append(location.__dict__)
+
+    return json.dumps(locations)
 
 
 # Function with a single parameter
 def get_single_location(id):
-    # Variable to hold the found location, if it exists
-    requested_location = None
+    with sqlite3.connect("./kennel.db") as conn:
+        conn.row_factory = sqlite3.Row
+        db_cursor = conn.cursor()
 
-    # Iterate the LOCATIONS list above. Very similar to the
-    # for..of loops you used in JavaScript.
-    for location in LOCATIONS:
-        # Dictionaries in Python use [] notation to find a key
-        # instead of the dot notation that JavaScript used.
-        if location["id"] == id:
-            requested_location = location
+        db_cursor.execute("""
+        SELECT
+            a.id,
+            a.name,
+            a.address
+        FROM location a
+        WHERE a.id = ?
+        """, ( id ))
 
-    return requested_location
+        data = db_cursor.fetchone()
+
+        location = Location(data['id'], data['name'], data['address'])
+
+        return json.dumps(location.__dict__)
 
 def create_location(location):
     max_id = LOCATIONS[-1]["id"]
