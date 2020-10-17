@@ -3,17 +3,9 @@ import json
 
 from models import Location
 
-LOCATIONS = [
-     {
-          "id": 1,
-          "name": "Nashville North",
-          "address": "8422 Johnson Pike"
-      },
-      {
-          "id": 2,
-          "name": "Nashville South",
-          "address": "209 Emory Drive"
-      }
+locations = [
+     Location(1, 'North Nashville', '8422 Johnson Pike'),
+     Location(2, 'Nashville South', '209 Emory Dr'),
 ]
 
 
@@ -66,28 +58,28 @@ def get_single_location(id):
         return json.dumps(location.__dict__)
 
 def create_location(location):
-    max_id = LOCATIONS[-1]["id"]
+    max_id = locations[-1].id
 
     new_id = max_id + 1
 
     location["id"] = new_id
 
-    LOCATIONS.append(location)
+    locations.append(location)
 
     return location
 
 def delete_location(id):
     location_index = -1
 
-    for index, location in enumerate(LOCATIONS):
-        if location["id"] == id:
+    for index, location in enumerate(locations):
+        if location.id == id:
             location_index = index
 
     if location_index >= 0:
-        LOCATIONS.pop(location_index)
+        locations.pop(location_index)
 
 def update_location(id, new_location):
-    for index, location in enumerate(LOCATIONS):
-        if location["id"] == id:
-            LOCATIONS[index] = new_location
+    for index, location in enumerate(locations):
+        if location.id == id:
+            locations[index] = new_location
             break

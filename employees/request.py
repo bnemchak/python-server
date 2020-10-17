@@ -3,23 +3,9 @@ import json
 
 from models import Employee
 
-EMPLOYEES = [
-    {
-        "id": 1,
-        "name": "Brock McBroke",
-        "employee": "77 That place",
-        "manager": False,
-        "full time": True,
-        "hourly rate": 15
-    },
-    {
-        "id": 2,
-        "name": "Brook McNotBroke",
-        "employee": "33 That other place",
-        "manager": True,
-        "full time": True,
-        "hourly rate": 150
-    }
+employees = [
+    Employee(1, 'Brock McBroke', '77 that place', 1),
+    Employee(2, 'Brooke McNotBroke', '33 that other place', 1)
 ]
 
 def get_all_employees():
@@ -32,10 +18,8 @@ def get_all_employees():
         SELECT
             a.id,
             a.name,
-            a.employee,
-            a.manager,
-            a.full_time,
-            a.hourly_rate,
+            a.address
+            a.location_id
         FROM employee a
         """)
 
@@ -45,13 +29,13 @@ def get_all_employees():
 
         for row in dataset:
 
-            employee = Employee(row['id'], row['name'], row['employee'], row['manager'], row['full_time'], row['hourly_rate'])
+            employee = Employee(row['id'], row['name'], row['address'], row['location_id'])
 
             employees.append(employee.__dict__)
 
     return json.dumps(employees)
 
-def get_single_employees():
+def get_single_employee():
     with sqlite3.connect("./kennel.db") as conn:
 
         conn.row_factory = sqlite3.Row
@@ -61,43 +45,73 @@ def get_single_employees():
         SELECT
             a.id,
             a.name,
-            a.employee,
-            a.manager,
-            a.full_time,
-            a.hourly_rate,
+            a.address
+            a.location_id
         FROM employee a
         WHERE a.id = ?
         """, ( id ))
 
         data = db_cursor.fetchone()
 
-        employee = Employee(data['id'], data['name'], data['employee'], data['manager'], data['full_time'], data['hourly_rate'])
+        employee = Employee(data['id'], data['name'], data['address'], data['location_id'])
 
         return json.dumps(employee.__dict__)
 
 def create_employee(employee):
-    max_id = EMPLOYEES[-1]["id"]
+    max_id = employees[-1].id
 
     new_id = max_id + 1
 
     employee["id"] = new_id
 
-    EMPLOYEES.append(employee)
+    employees.append(employee)
 
     return employee
 
 def delete_employee(id):
+    # Initial -1 value for employee index, in case one isn't found
     employee_index = -1
 
-    for index, employee in enumerate(EMPLOYEES):
-        if employee["id"] == id:
+    # Iterate over employees list, but use enumerate() so you can 
+    # access the index value of each item
+    for index, employee in enumerate(employees):
+        if employee.id == id:
+            # Found the employee. store the current index
             employee_index = index
 
     if employee_index >= 0:
-        EMPLOYEES.pop(employee_index)
+        employees.pop(employee_index)
 
 def update_employee(id, new_employee):
-    for index, employee in enumerate(EMPLOYEES):
-        if employee["id"] == id:
-            EMPLOYEES[index] = new_employee
+    # Iterate the employees list, but use enumerate() so you
+    # can access the index of each item.
+    for index, employee in enumerate(employees):
+        if employee.id == id:
+            # Found the employee. Update the value
+            employees[index] = Employee(id, new_employee["name"], new_employee["address"], new_employee["location_id"])
             break
+
+def get_employee_by_location(location_id):
+    with sqlite3.connect("./kennel.db") as conn:
+        conn.row_factory = sqlite3.Row
+        db_cursor = conn.cursor()
+
+        db_cursor.execute("""
+        SELECT
+            e.id,
+            e.name,
+            e.address,
+            e.location_id
+        FROM employee e
+        WHERE location_id = ?
+        """, (location_id, ))
+
+        employees = []
+        dataset = db_cursor.fetchall()
+
+        for row in dataset:
+            employee = Employee(row['id'], row['name'], row['address'],
+                                row['location_id'])
+            employees.append(employee.__dict__)
+        
+    return json.dumps(employees)
