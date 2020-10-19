@@ -5,7 +5,7 @@ from models import Employee
 
 employees = [
     Employee(1, 'Brock McBroke', '77 that place', 1),
-    Employee(2, 'Brooke McNotBroke', '33 that other place', 1)
+    Employee(2, 'Brooke McNotBroke', '33 that other place', 2)
 ]
 
 def get_all_employees():
@@ -35,7 +35,7 @@ def get_all_employees():
 
     return json.dumps(employees)
 
-def get_single_employee():
+def get_single_employee(id):
     with sqlite3.connect("./kennel.db") as conn:
 
         conn.row_factory = sqlite3.Row
