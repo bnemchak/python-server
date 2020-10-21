@@ -77,9 +77,8 @@ def get_single_animal(id):
         data = db_cursor.fetchone()
 
         # Create an animal instance from the current row
-        animal = Animal(data['name'], data['breed'], data['status'],
-                        data['location_id'], data['customer_id'],
-                        data['id'])
+        animal = Animal(data['id'], data['name'], data['breed'], data['status'],
+                        data['location_id'], data['customer_id'])
 
         return json.dumps(animal.__dict__)
 
@@ -141,6 +140,7 @@ def update_animal(id, new_animal):
     else:
         # Forces 204 response by main module
         return True
+
 
 
 def get_animal_by_location(location_id):
