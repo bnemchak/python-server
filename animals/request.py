@@ -78,7 +78,7 @@ def get_single_animal(id):
 
         # Create an animal instance from the current row
         animal = Animal(data['id'], data['name'], data['breed'], data['status'],
-                        data['location_id'], data['customer_id'])
+                        data['customer_id'], data['location_id'])
 
         return json.dumps(animal.__dict__)
 
