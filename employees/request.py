@@ -1,7 +1,7 @@
 import sqlite3
 import json
 
-from models import Employee
+from models import Employee, Location
 
 employees = [
     Employee(1, 'Brock McBroke', '77 that place', 1),
@@ -45,15 +45,23 @@ def get_single_employee(id):
         SELECT
             a.id,
             a.name,
-            a.address
-            a.location_id
+            a.address,
+            a.location_id,
+            l.name location_name,
+            l.address location_address
         FROM employee a
+        JOIN location l
+            ON l.id = a.location_id
         WHERE a.id = ?
         """, ( id ))
 
         data = db_cursor.fetchone()
 
         employee = Employee(data['id'], data['name'], data['address'], data['location_id'])
+
+        location = Location(data['id'], data['location_name'], data['location_address'])
+
+        employee.location = location.__dict__
 
         return json.dumps(employee.__dict__)
 

@@ -1,0 +1,1 @@
+SELECT * FROM Animal ORDER BY id DESC;
